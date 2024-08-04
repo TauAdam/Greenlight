@@ -35,10 +35,8 @@ func main() {
 		logger: logger,
 	}
 
-	mux := http.NewServeMux()
-
 	srv := &http.Server{
-		Handler:      mux,
+		Handler:      app.routes(),
 		Addr:         fmt.Sprintf(":%d", cfg.port),
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 20 * time.Second,
