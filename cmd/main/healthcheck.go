@@ -6,19 +6,22 @@ import (
 )
 
 func (app *application) handleHealthcheck(w http.ResponseWriter, r *http.Request) {
-	_, err := fmt.Fprintln(w, "status: available")
-	if err != nil {
-		app.logger.Print(w, err)
-		return
-	}
-	_, err = fmt.Fprintf(w, "environment: %s\n", app.config.env)
-	if err != nil {
-		app.logger.Print(w, err)
-		return
-	}
-	_, err = fmt.Fprintf(w, "version: %s\n", version)
-	if err != nil {
-		app.logger.Print(w, err)
-		return
-	}
+	data := map[string]string{
+"status": "available",
+"environment": app.config.env,
+"version": version,
+}
+// Pass the map to the json.Marshal()
+js, err := json.Marshal(data)
+if err != nil {
+app.logger.Println(err)
+http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+return
+}
+
+js = append(js, '\n')
+// encoding the data
+w.Header().Set("Content-Type", "application/json")
+// Use w.Write() to send the []byte slice containing the JSON as the response body.
+w.Write(js)
 }
