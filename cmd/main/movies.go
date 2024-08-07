@@ -15,16 +15,23 @@ func (app *application) handleCreateMovie(w http.ResponseWriter, r *http.Request
 
 // handleShowMovie retrieve the interpolated "id" parameter from the current URL
 func (app *application) handleShowMovie(w http.ResponseWriter, r *http.Request) {
-	id, err := app.extractIDParam(r)
-	if err != nil {
-		app.logger.Printf("invalid movie ID %q", id)
-		http.NotFound(w, r)
-		return
-	}
+id, err := app.readIDParam(r)
+if err != nil {
+http.NotFound(w, r)
+return
+}
+movie := data.Movie{
+ID: id,
+CreatedAt: time.Now(),
+Title: "Casablanca",
+Runtime: 102,
+Genres: []string{"drama", "romance", "war"},
+Version: 1,
+}
 
-	_, err = fmt.Fprintf(w, "show the details of movie %d\n", id)
-	if err != nil {
-		app.logger.Print(w, err)
-		return
-	}
+err = app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
+if err != nil {
+app.logger.Println(err)
+http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+}
 }
