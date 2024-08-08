@@ -6,7 +6,15 @@ import (
 )
 
 func (app *application) routes() *httprouter.Router {
+
+
 	router := httprouter.New()
+
+// custom 404, not allowed method handler
+router.NotFound = http.HandlerFunc(app.notFoundResponse)
+
+router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
+
 
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.handleHealthcheck)
 	router.HandlerFunc(http.MethodPost, "/v1/movies", app.handleCreateMovie)

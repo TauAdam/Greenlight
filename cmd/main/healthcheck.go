@@ -8,7 +8,8 @@ import (
 "github.com/julienschmidt/httprouter"
 )
 
-func (app *application) handleHealthcheck(w http.ResponseWriter, r *http.Request) {
+func (app *application) handleHealthcheck(w http.ResponseWriter, r *http.Request) {
+
 // we've constructed this means the environment and version data will now be nested
 // under a system_info key in the JSON response.
 env := envelope{
@@ -20,7 +21,6 @@ env := envelope{
 }
 err := app.writeJSON(w, http.StatusOK, env, nil)
 if err != nil {
-app.logger.Println(err)
-http.Error(w, "The server encountered a problem and could not process your request", http.StatusInternalServerError)
+  app.serverErrorResponse(w, r, err)
 }
 }
