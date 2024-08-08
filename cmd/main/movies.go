@@ -6,11 +6,21 @@ import (
 )
 
 func (app *application) handleCreateMovie(w http.ResponseWriter, r *http.Request) {
-	// TODO - create a new movie
-	_, err := fmt.Fprintln(w, "create a new movie")
-	if err != nil {
-		return
-	}
+	var input struct {
+
+Title string `json:"title"`
+
+Year int32 `json:"year"`
+Runtime int32 `json:"runtime"`
+Genres []string `json:"genres"`
+}
+// Use the new readJSON() helper to decode the request body into the input struct.
+err := app.readJSON(w, r, &input)
+if err != nil {
+app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+return
+}
+fmt.Fprintf(w, "%+v\n", input)
 }
 
 // handleShowMovie retrieve the interpolated "id" parameter from the current URL
