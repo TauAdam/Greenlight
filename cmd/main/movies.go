@@ -20,6 +20,25 @@ if err != nil {
 app.badRequestResponse(w, r, err)
 return
 }
+// validation step
+v := validator.New()
+
+v.Check(input.Title != "", "title", "must be provided")
+v.Check(len(input.Title) <= 500, "title", "max 500 bytes")
+v.Check(input.Year != 0, "year", "required")
+v.Check(input.Year >= 1888, "year", "min 1888")
+v.Check(input.Year <= int32(time.Now().Year()), "year", "not in future")
+v.Check(input.Runtime != 0, "runtime", "required")
+v.Check(input.Runtime > 0, "runtime", "positive integer")
+v.Check(input.Genres != nil, "genres", "required")
+v.Check(len(input.Genres) >= 1, "genres", "min 1")
+v.Check(len(input.Genres) <= 5, "genres", "max 5")
+v.Check(validator.Unique(input.Genres), "genres", "unique values")
+
+if !v.Valid() {
+    app.failedValidationResponse(w, r, v.Errors)
+    return
+}
 fmt.Fprintf(w, "%+v\n", input)
 }
 
