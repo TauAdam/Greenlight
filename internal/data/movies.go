@@ -63,3 +63,19 @@ return nil
 func (m MovieModel) Delete(id int64) error {
 return nil
 }
+
+type MockMovieModel struct{}
+
+func (m MockMovieModel) Insert(movie *Movie) error {
+
+// Mock the action...
+}
+func (m MockMovieModel) Get(id int64) (*Movie, error) {
+// Mock the action...
+}
+func (m MockMovieModel) Update(movie *Movie) error {
+// Mock the action...
+}
+func (m MockMovieModel) Delete(id int64) error {
+// Mock the action...
+}
