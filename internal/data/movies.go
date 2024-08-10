@@ -79,3 +79,18 @@ func (m MockMovieModel) Update(movie *Movie) error {
 func (m MockMovieModel) Delete(id int64) error {
 // Mock the action...
 }
+
+// Insert() accepts a pointer to a movie struct, which should contain the
+// data for the new record.
+
+func (m MovieModel) Insert(movie *Movie) error {
+// SQL query
+query := `
+INSERT INTO movies (title, year, runtime, genres)
+VALUES ($1, $2, $3, $4)
+RETURNING id, created_at, version`
+
+args := []interface{}{movie.Title, movie.Year, movie.Runtime, pq.Array(movie.Genres)}
+// Use the QueryRow() method to execute the SQL query on our connection pool
+return m.DB.QueryRow(query, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
+}

@@ -12,12 +12,16 @@ ErrRecordNotFound = errors.New("record not found")
 )
 
 type Models struct {
-Movies MovieModel
+Movies interface {
+Insert(movie *Movie) error
+Get(id int64) (*Movie, error)
+Update(movie *Movie) error
+Delete(id int64) error
 }
-// For ease of use, we also add a container  containing
-// the initialized MovieModel
-func NewModels(db *sql.DB) Models {
+}
+
+func NewMockModels() Models {
 return Models{
-Movies: MovieModel{DB: db},
+Movies: MockMovieModel{},
 }
 }
