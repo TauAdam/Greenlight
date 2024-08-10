@@ -1,5 +1,6 @@
 package data 
 
+import "database/sql" 
 
 type Movie struct {
 ID int64
@@ -39,4 +40,26 @@ Version: m.Version,
 
 // Encode the anonymous struct to JSON, 
 return json.Marshal(aux)
+}
+
+
+type MovieModel struct {
+
+DB *sql.DB
+}
+// a placeholder method
+func (m MovieModel) Insert(movie *Movie) error {
+return nil
+}
+
+func (m MovieModel) Get(id int64) (*Movie, error) {
+return nil, nil
+}
+
+func (m MovieModel) Update(movie *Movie) error {
+return nil
+}
+
+func (m MovieModel) Delete(id int64) error {
+return nil
 }
