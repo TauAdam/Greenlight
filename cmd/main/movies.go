@@ -21,25 +21,36 @@ app.badRequestResponse(w, r, err)
 return
 }
 // validation step
-v := validator.New()
 
-v.Check(input.Title != "", "title", "must be provided")
-v.Check(len(input.Title) <= 500, "title", "max 500 bytes")
-v.Check(input.Year != 0, "year", "required")
-v.Check(input.Year >= 1888, "year", "min 1888")
-v.Check(input.Year <= int32(time.Now().Year()), "year", "not in future")
-v.Check(input.Runtime != 0, "runtime", "required")
-v.Check(input.Runtime > 0, "runtime", "positive integer")
-v.Check(input.Genres != nil, "genres", "required")
-v.Check(len(input.Genres) >= 1, "genres", "min 1")
-v.Check(len(input.Genres) <= 5, "genres", "max 5")
-v.Check(validator.Unique(input.Genres), "genres", "unique values")
-
-if !v.Valid() {
-    app.failedValidationResponse(w, r, v.Errors)
-    return
+movie := &data.Movie{
+Title: input.Title,
+Year: input.Year,
+Runtime: input.Runtime,
+Genres: input.Genres,
 }
-fmt.Fprintf(w, "%+v\n", input)
+
+v := validator.New()
+if data.ValidateMovie(v, movie); !v.Valid() {
+app.failedValidationResponse(w, r, v.Errors)
+return
+}
+
+err = app.models.Movies.Insert(movie)
+if err != nil {
+app.serverErrorResponse(w, r, err)
+return
+}
+
+// include a Location header to let the
+// client know which URL they can find the newly-created resource at
+headers := make(http.Header)
+headers.Set("Location", fmt.Sprintf("/v1/movies/%d", movie.ID))
+
+// Write a JSON response with a 201 code
+err = app.writeJSON(w, http.StatusCreated, envelope{"movie": movie}, headers)
+if err != nil {
+app.serverErrorResponse(w, r, err)
+}
 }
 
 // handleShowMovie retrieve the interpolated "id" parameter from the current URL

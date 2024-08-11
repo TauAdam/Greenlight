@@ -94,3 +94,16 @@ args := []interface{}{movie.Title, movie.Year, movie.Runtime, pq.Array(movie.Gen
 // Use the QueryRow() method to execute the SQL query on our connection pool
 return m.DB.QueryRow(query, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
 }
+
+func (m MovieModel) Get(id int64) (*Movie, error) {
+
+// To avoid making an unnecessary database call, we take a shortcut
+// and return an ErrRecordNotFound error straight away.
+if id < 1 {
+  return nil, ErrRecordNotFound
+}
+
+query := `
+SELECT id, created_at, title, year, runtime, genres, version
+FROM movies
+WHERE id = $1`
