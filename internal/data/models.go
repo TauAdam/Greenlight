@@ -1,27 +1,39 @@
 package data
 
 import (
-
-"database/sql"
-"errors"
+	"database/sql"
+	"errors"
 )
-// custom error for case when
+
+// ErrRecordNotFound custom error for case when
 // looking up a movie that doesn't exist in our database.
 var (
-ErrRecordNotFound = errors.New("record not found")
+	ErrRecordNotFound = errors.New("record not found")
 )
 
-type Models struct {
-Movies interface {
-Insert(movie *Movie) error
-Get(id int64) (*Movie, error)
-Update(movie *Movie) error
-Delete(id int64) error
-}
+type MockModels struct {
+	Movies interface {
+		Insert(movie *Movie) error
+		Get(id int64) (*Movie, error)
+		Update(movie *Movie) error
+		Delete(id int64) error
+	}
 }
 
-func NewMockModels() Models {
-return Models{
-Movies: MockMovieModel{},
+func NewMockModels() MockModels {
+	return MockModels{
+		Movies: MockMovieModel{},
+	}
 }
+
+type Models struct {
+	Movies MovieModel
+}
+
+// For ease of use, we also add a New() method which returns a Models struct containing
+// the initialized MovieModel.
+func NewModels(db *sql.DB) Models {
+	return Models{
+		Movies: MovieModel{DB: db},
+	}
 }
