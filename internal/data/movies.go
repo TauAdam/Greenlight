@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/TauAdam/Greenlight/internal/validator"
 	"github.com/lib/pq"
+	"log"
 	"time"
 )
 
@@ -175,6 +176,26 @@ func (m MovieModel) Delete(id int64) error {
 	}
 
 	return nil
+}
+
+func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, error) {
+	query := `SELECT id, title, year, runtime, genres, version, created_at FROM movies ORDER BY id`
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	// defer a call to rows.Close() to ensure that the result set is closed before GetAll() returns.
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Printf("failed to close rows")
+		}
+	}(rows)
+
 }
 
 type MockMovieModel struct{}
