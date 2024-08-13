@@ -68,10 +68,6 @@ type MovieModel struct {
 	DB *sql.DB
 }
 
-func (m MovieModel) Delete(id int64) error {
-	return nil
-}
-
 // Insert accepts a pointer to a movie struct, which should contain the
 // data for the new record.
 func (m MovieModel) Insert(movie *Movie) error {
@@ -134,6 +130,28 @@ RETURNING version`
 	}
 
 	return m.DB.QueryRow(query, args...).Scan(&movie.Version)
+}
+
+func (m MovieModel) Delete(id int64) error {
+	if id < 1 {
+		return ErrRecordNotFound
+	}
+
+	query := `DELETE FROM movies WHERE id = $1`
+	result, err := m.DB.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
+
+	return nil
 }
 
 type MockMovieModel struct{}
