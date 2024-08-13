@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/TauAdam/Greenlight/internal/data"
 	"github.com/TauAdam/Greenlight/internal/validator"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -175,5 +176,35 @@ func (app *application) handleDeleteMovie(w http.ResponseWriter, r *http.Request
 	err = app.writeJSON(w, http.StatusOK, envelope{"message": "success"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
+	}
+}
+
+// handleListMovies implements filtering, sorting, pagination
+func (app *application) handleListMovies(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Title  string
+		Genres []string
+		data.Filters
+	}
+
+	v := validator.New()
+
+	paramsMap := r.URL.Query()
+	input.Title = app.readString(paramsMap, "title", "")
+	input.Genres = app.readCSV(paramsMap, "genres", []string{})
+
+	input.Filters.Page = app.readInteger(paramsMap, "page", 1, v)
+	input.Filters.PageSize = app.readInteger(paramsMap, "page_size", 20, v)
+	input.Filters.Sort = app.readString(paramsMap, "sort", "id")
+
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	err := app.writeJSON(w, http.StatusAccepted, envelope{"parsed-query-params:": input}, nil)
+	if err != nil {
+		log.Printf("failed to send response")
+		return
 	}
 }
