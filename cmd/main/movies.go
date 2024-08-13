@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/TauAdam/Greenlight/internal/data"
 	"github.com/TauAdam/Greenlight/internal/validator"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -204,9 +203,15 @@ func (app *application) handleListMovies(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err := app.writeJSON(w, http.StatusAccepted, envelope{"parsed-query-params:": input}, nil)
+	movies, err := app.models.Movies.GetAll(input.Title, input.Genres, input.Filters)
 	if err != nil {
-		log.Printf("failed to send response")
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.writeJSON(w, http.StatusOK, envelope{"movies": movies}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
 		return
 	}
 }
