@@ -21,18 +21,17 @@ type MockModels struct {
 	}
 }
 
-func NewMockModels() MockModels {
-	return MockModels{
-		Movies: MockMovieModel{},
-	}
-}
+//func NewMockModels() MockModels {
+//	return MockModels{
+//		Movies: MockMovieModel{},
+//	}
+//}
 
 type Models struct {
 	Movies MovieModel
 }
 
-// For ease of use, we also add a New() method which returns a Models struct containing
-// the initialized MovieModel.
+// NewModels returns a Models struct containing the initialized MovieModel.
 func NewModels(db *sql.DB) Models {
 	return Models{
 		Movies: MovieModel{DB: db},

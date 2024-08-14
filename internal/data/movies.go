@@ -179,9 +179,9 @@ func (m MovieModel) Delete(id int64) error {
 }
 
 // GetAll returns all movies from the database, filtered, sorted, and paginated.
-func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, error) {
+func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, Metadata, error) {
 	query := fmt.Sprintf(`
-SELECT id, created_at, title, year, runtime, genres, version
+SELECT count(*) OVER(), id, created_at, title, year, runtime, genres, version
 FROM movies
 WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
 AND (genres @> $2 OR $2 = '{}')
@@ -195,7 +195,7 @@ LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
 
 	rows, err := m.DB.QueryContext(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, Metadata{}, err
 	}
 	// defer a call to rows.Close() to ensure that the result set is closed before GetAll() returns.
 	defer func(rows *sql.Rows) {
@@ -205,11 +205,13 @@ LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
 		}
 	}(rows)
 
+	totalRecords := 0
 	var movies []*Movie
 
 	for rows.Next() {
 		var movie Movie
 		err := rows.Scan(
+			&totalRecords,
 			&movie.ID,
 			&movie.CreatedAt,
 			&movie.Title,
@@ -219,31 +221,19 @@ LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
 			&movie.Version,
 		)
 		if err != nil {
-			return nil, err
+			return nil, Metadata{}, err
 		}
 
 		movies = append(movies, &movie)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		return nil, Metadata{}, err
 	}
 
-	return movies, nil
+	meta := calculateMetadata(totalRecords, filters.Page, filters.PageSize)
+
+	return movies, meta, nil
 }
 
 type MockMovieModel struct{}
-
-func (m MockMovieModel) Insert(movie *Movie) error {
-
-	// Mock the action...
-}
-func (m MockMovieModel) Get(id int64) (*Movie, error) {
-	// Mock the action...
-}
-func (m MockMovieModel) Update(movie *Movie) error {
-	// Mock the action...
-}
-func (m MockMovieModel) Delete(id int64) error {
-	// Mock the action...
-}
