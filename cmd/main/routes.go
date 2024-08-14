@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func (app *application) routes() *httprouter.Router {
+func (app *application) routes() http.Handler {
 	router := httprouter.New()
 
 	// custom 404, not allowed method handler
@@ -19,5 +19,5 @@ func (app *application) routes() *httprouter.Router {
 	router.HandlerFunc(http.MethodDelete, "/v1/movies/:id", app.handleDeleteMovie)
 	router.HandlerFunc(http.MethodGet, "/v1/movies", app.handleListMovies)
 
-	return router
+	return app.recoverPanic(router)
 }

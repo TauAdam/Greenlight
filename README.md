@@ -14,6 +14,10 @@ A json api for managing and retrieving information about movies.
 - Healthcheck
 - Filtering, sorting and pagination
 - Custom json logging
+- Middleware for panic recovery
+    - if there is a panic in one of API handlers the middleware
+      will recover it and log the error using custom Logger and send the client a nice
+      500 Internal Server Error response with a JSON body.
 
 ## Endpoints
 - GET /v1/healthcheck - Check the health of the API
