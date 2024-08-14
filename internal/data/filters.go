@@ -1,12 +1,31 @@
 package data
 
-import "github.com/TauAdam/Greenlight/internal/validator"
+import (
+	"github.com/TauAdam/Greenlight/internal/validator"
+	"strings"
+)
 
 type Filters struct {
 	Page        int
 	PageSize    int
 	Sort        string
 	SortOptions []string
+}
+
+func (f Filters) sortColumn() string {
+	for _, safeValue := range f.SortOptions {
+		if f.Sort != safeValue {
+			panic("unsafe sort parameter: " + f.Sort)
+		}
+	}
+	return strings.TrimPrefix(f.Sort, "-")
+}
+
+func (f Filters) sortDirection() string {
+	if strings.HasPrefix(f.Sort, "-") {
+		return "DESC"
+	}
+	return "ASC"
 }
 
 func ValidateFilters(v *validator.Validator, f Filters) {
