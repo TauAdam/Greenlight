@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/TauAdam/Greenlight/internal/data"
+	json_logger "github.com/TauAdam/Greenlight/internal/json-logger"
 	_ "github.com/lib/pq"
 	"log"
 	"net/http"
@@ -28,7 +29,7 @@ type config struct {
 
 type application struct {
 	config config
-	logger *log.Logger
+	logger *json_logger.Logger
 	models data.Models
 }
 
@@ -41,7 +42,9 @@ func main() {
 	flag.IntVar(&cfg.db.maxIdleConnections, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
 	flag.StringVar(&cfg.db.maxIdleTime, "db-max-idle-time", "15m", "PostgreSQL max connection idle time")
 	flag.Parse()
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
+
+	logger := json_logger.New(os.Stdout, json_logger.LevelInfo)
+
 	db, err := openDB(cfg)
 	if err != nil {
 		logger.Fatal(err)
