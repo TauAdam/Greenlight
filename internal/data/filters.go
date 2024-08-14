@@ -13,7 +13,7 @@ type Filters struct {
 	SortOptions []string
 }
 
-// sortColumn returns the column name we should use to sort the database query results.
+// sortColumn returns the column name to sort the database query results.
 func (f Filters) sortColumn() string {
 	for _, safeValue := range f.SortOptions {
 		if f.Sort != safeValue {

@@ -17,13 +17,12 @@ func (app *application) handleCreateMovie(w http.ResponseWriter, r *http.Request
 		Runtime data.Runtime `json:"runtime"`
 		Genres  []string     `json:"genres"`
 	}
-	// Use the new readJSON() helper to decode the request body into the input struct.
-	err := app.readJSON(w, r, &input)
+
+	err := app.readJSON(r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
-	// validation step
 
 	movie := &data.Movie{
 		Title:   input.Title,
@@ -49,14 +48,13 @@ func (app *application) handleCreateMovie(w http.ResponseWriter, r *http.Request
 	headers := make(http.Header)
 	headers.Set("Location", fmt.Sprintf("/v1/movies/%d", movie.ID))
 
-	// Write a JSON response with a 201 code
 	err = app.writeJSON(w, http.StatusCreated, envelope{"movie": movie}, headers)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
 }
 
-// handleShowMovie retrieve the interpolated "id" parameter from the current URL
+// handleShowMovie retrieves a movie record by its ID
 func (app *application) handleShowMovie(w http.ResponseWriter, r *http.Request) {
 	id, err := app.extractIDParam(r)
 	if err != nil {
@@ -81,6 +79,7 @@ func (app *application) handleShowMovie(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+// handleUpdateMovie updates a movie record by its ID
 func (app *application) handleUpdateMovie(w http.ResponseWriter, r *http.Request) {
 	id, err := app.extractIDParam(r)
 	if err != nil {
@@ -99,6 +98,7 @@ func (app *application) handleUpdateMovie(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	// Check if the client has provided an If-Match header & if the value matches the current version of the movie record
 	if r.Header.Get("X-Expected-Version") != "" {
 		if strconv.FormatInt(int64(movie.Version), 32) != r.Header.Get("X-Expected-Version") {
 			app.editConflictResponse(w, r)
@@ -112,12 +112,13 @@ func (app *application) handleUpdateMovie(w http.ResponseWriter, r *http.Request
 		Runtime *data.Runtime `json:"runtime"`
 		Genres  []string      `json:"genres"`
 	}
-	err = app.readJSON(w, r, &input)
+	err = app.readJSON(r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
 	}
 
+	// Partial updates are supported
 	if input.Title != nil {
 		movie.Title = *input.Title
 	}
@@ -154,6 +155,7 @@ func (app *application) handleUpdateMovie(w http.ResponseWriter, r *http.Request
 	}
 }
 
+// handleDeleteMovie deletes a movie record by its ID
 func (app *application) handleDeleteMovie(w http.ResponseWriter, r *http.Request) {
 	id, err := app.extractIDParam(r)
 	if err != nil {
@@ -178,7 +180,7 @@ func (app *application) handleDeleteMovie(w http.ResponseWriter, r *http.Request
 	}
 }
 
-// handleListMovies implements filtering, sorting, pagination
+// handleListMovies retrieves a list of movies with optional filtering, sorting, and pagination
 func (app *application) handleListMovies(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Title  string

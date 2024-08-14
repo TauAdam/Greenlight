@@ -47,7 +47,7 @@ func main() {
 
 	db, err := openDB(cfg)
 	if err != nil {
-		logger.Fatal(err)
+		logger.PrintFatal(err, nil)
 	}
 	defer func(db *sql.DB) {
 		err := db.Close()
@@ -56,7 +56,7 @@ func main() {
 		}
 	}(db)
 
-	logger.Printf("database connection pool established")
+	logger.PrintInfo("database connection pool established", nil)
 
 	app := &application{
 		config: cfg,
@@ -69,10 +69,16 @@ func main() {
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
+		ErrorLog:     log.New(logger, "", 0),
 	}
-	logger.Printf("starting %s server on %s", cfg.env, srv.Addr)
+
+	logger.PrintInfo("starting server", map[string]string{
+		"env":  cfg.env,
+		"addr": srv.Addr,
+	})
+
 	err = srv.ListenAndServe()
-	logger.Fatal(err)
+	logger.PrintFatal(err, nil)
 }
 
 func openDB(cfg config) (*sql.DB, error) {

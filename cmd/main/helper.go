@@ -43,7 +43,7 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 	return nil
 }
 
-func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst interface{}) error {
+func (app *application) readJSON(r *http.Request, dst interface{}) error {
 	err := json.NewDecoder(r.Body).Decode(dst)
 	if err != nil {
 		var syntaxError *json.SyntaxError

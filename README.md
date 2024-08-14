@@ -13,6 +13,7 @@ A json api for managing and retrieving information about movies.
 - Delete a movie
 - Healthcheck
 - Filtering, sorting and pagination
+- Custom json logging
 
 ## Endpoints
 - GET /v1/healthcheck - Check the health of the API
