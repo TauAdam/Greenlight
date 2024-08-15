@@ -18,8 +18,9 @@ A json api for managing and retrieving information about movies.
     - if there is a panic in one of API handlers the middleware
       will recover it and log the error using custom Logger and send the client a nice
       500 Internal Server Error response with a JSON body.
-- Middleware for rate limiting
-    - The rate limiter middleware is used to limit the number of requests a client can make to the API within a given time window.
+- Middleware for ip based rate limiting
+    - separate rate limiter for each client, so that one bad
+      client making too many requests doesn’t affect all the others.
 
 ## Endpoints
 - GET /v1/healthcheck - Check the health of the API

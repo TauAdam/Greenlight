@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"golang.org/x/time/rate"
+	"net"
 	"net/http"
+	"sync"
 )
 
 // middleware to recover from panics & log them
@@ -25,17 +27,36 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 	})
 }
 
-// global rate limiter to enforce strict limit on the total rate of requests to API
+// ip based rate limiter for each client
 func (app *application) rateLimit(next http.Handler) http.Handler {
-	//  allows an average of 2 requests per second, with a maximum of 4 requests in a single ‘burst’.
-	limiter := rate.NewLimiter(2, 4)
+	var (
+		mu      sync.Mutex
+		clients = make(map[string]*rate.Limiter)
+	)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// if the request not permitted by the limiter, send a 429 Too Many Requests response.
-		if !limiter.Allow() {
+		ip, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
+		// Lock the mutex to prevent concurrent execution
+		mu.Lock()
+
+		if _, found := clients[ip]; !found {
+			clients[ip] = rate.NewLimiter(2, 4)
+		}
+
+		if !clients[ip].Allow() {
+			// Unlock the mutex before sending a response
+			mu.Unlock()
 			app.rateLimitExceededResponse(w, r)
 			return
 		}
+
+		// Unlock the mutex before calling the next handler in the chain
+		mu.Unlock()
 		next.ServeHTTP(w, r)
 	})
 }
