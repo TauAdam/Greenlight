@@ -25,6 +25,8 @@ A json api for managing and retrieving information about movies.
     - Database
     - Server
     - Rate limiter
+- Graceful shutdown
+    - The server will wait for all active connections to finish before shutting down.
 
 ## Endpoints
 - GET /v1/healthcheck - Check the health of the API
