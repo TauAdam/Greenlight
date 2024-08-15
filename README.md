@@ -21,6 +21,10 @@ A json api for managing and retrieving information about movies.
 - Middleware for ip based rate limiting
     - separate rate limiter for each client, so that one bad
       client making too many requests doesn’t affect all the others.
+- Configuration for
+    - Database
+    - Server
+    - Rate limiter
 
 ## Endpoints
 - GET /v1/healthcheck - Check the health of the API
