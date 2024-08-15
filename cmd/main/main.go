@@ -4,12 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"flag"
-	"fmt"
 	"github.com/TauAdam/Greenlight/internal/data"
 	json_logger "github.com/TauAdam/Greenlight/internal/json-logger"
 	_ "github.com/lib/pq"
 	"log"
-	"net/http"
 	"os"
 	"time"
 )
@@ -73,21 +71,8 @@ func main() {
 		logger: logger,
 		models: data.NewModels(db),
 	}
-	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", cfg.port),
-		Handler:      app.routes(),
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
-		ErrorLog:     log.New(logger, "", 0),
-	}
 
-	logger.PrintInfo("starting server", map[string]string{
-		"env":  cfg.env,
-		"addr": srv.Addr,
-	})
-
-	err = srv.ListenAndServe()
+	err = app.serve()
 	if err != nil {
 		logger.PrintFatal(err, nil)
 	}
