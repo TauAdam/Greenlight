@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"sync"
+	"time"
 )
 
 // middleware to recover from panics & log them
@@ -29,10 +30,32 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 
 // ip based rate limiter for each client
 func (app *application) rateLimit(next http.Handler) http.Handler {
+	type client struct {
+		limiter  *rate.Limiter
+		lastSeen time.Time
+	}
+
 	var (
 		mu      sync.Mutex
-		clients = make(map[string]*rate.Limiter)
+		clients = make(map[string]*client)
 	)
+	// background goroutine which removes old entries from the clients map once every minute.
+	go func() {
+		for {
+			time.Sleep(time.Minute)
+			// Lock the mutex to prevent any other goroutines from accessing the clients map while the cleanup is taking place.
+			mu.Lock()
+
+			for ip, client := range clients {
+				if time.Since(client.lastSeen) > 3*time.Minute {
+					delete(clients, ip)
+				}
+			}
+
+			// unlock the mutex when the cleanup is complete.
+			mu.Unlock()
+		}
+	}()
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ip, _, err := net.SplitHostPort(r.RemoteAddr)
@@ -41,21 +64,19 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 			return
 		}
 
-		// Lock the mutex to prevent concurrent execution
 		mu.Lock()
 
 		if _, found := clients[ip]; !found {
-			clients[ip] = rate.NewLimiter(2, 4)
+			// TODO move hard coded values to config
+			clients[ip] = &client{limiter: rate.NewLimiter(2, 4)}
 		}
 
-		if !clients[ip].Allow() {
-			// Unlock the mutex before sending a response
+		clients[ip].lastSeen = time.Now()
+		if !clients[ip].limiter.Allow() {
 			mu.Unlock()
 			app.rateLimitExceededResponse(w, r)
 			return
 		}
-
-		// Unlock the mutex before calling the next handler in the chain
 		mu.Unlock()
 		next.ServeHTTP(w, r)
 	})
