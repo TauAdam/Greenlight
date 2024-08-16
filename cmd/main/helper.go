@@ -108,3 +108,20 @@ func (app *application) readInteger(queryStr url.Values, key string, defaultValu
 
 	return i
 }
+
+// background function runs a function in a goroutine and recovers any panic
+func (app *application) background(fn func()) {
+	app.wg.Add(1)
+
+	go func() {
+
+		defer app.wg.Done()
+
+		defer func() {
+			if err := recover(); err != nil {
+				app.logger.PrintError(fmt.Errorf("%s", err), nil)
+			}
+		}()
+		fn()
+	}()
+}

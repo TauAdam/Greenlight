@@ -10,6 +10,7 @@ import (
 	_ "github.com/lib/pq"
 	"log"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -43,6 +44,7 @@ type application struct {
 	logger *json_logger.Logger
 	models data.Models
 	mailer mailer.Mailer
+	wg     sync.WaitGroup
 }
 
 func main() {
