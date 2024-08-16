@@ -4,6 +4,9 @@ Hello,
 We're thrilled that you've joined the Greenlight community!
 We're looking forward to having you on board.
 For your records, your unique user ID is {{.ID}}.
+Your account is currently inactive. Token for activation is
+{"token": "{{.activationToken}}"}
+Please note that this is a one-time use token and it will expire in 3 days.
 Best regards,
 The Greenlight Team
 {{end}}
@@ -19,6 +22,9 @@ The Greenlight Team
 <p>We're thrilled that you've joined the Greenlight community!</p>
 <p>We're looking forward to having you on board.</p>
 <p>For your records, your unique user ID is <strong>{{.ID}}</strong>.</p>
+<p>Your account is currently inactive. Token for activation is</p>
+<pre>{"token ": "{{.activationToken}}"}</pre>
+<p>Please note that this is a one-time use token and it will expire in 3 days.</p>
 <p>Best regards,</p>
 <p>The Greenlight Team</p>
 </body>

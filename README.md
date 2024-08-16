@@ -28,6 +28,8 @@ A json api for managing and retrieving information about movies.
 - Graceful shutdown
     - The server will wait for all active connections to finish before shutting down.
 - Sending mail
+- User Activation
+    - When a user registers, they will receive an email with a link to activate their account.
 
 ## Endpoints
 - GET /v1/healthcheck - Check the health of the API
