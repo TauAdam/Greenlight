@@ -1,0 +1,26 @@
+{{define "subject"}}You're Now a Part of Greenlight!{{end}}
+{{define "plainBody"}}
+Hello,
+We're thrilled that you've joined the Greenlight community!
+We're looking forward to having you on board.
+For your records, your unique user ID is {{.ID}}.
+Best regards,
+The Greenlight Team
+{{end}}
+{{define "htmlBody"}}
+<!doctype html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<p>Hello,</p>
+<p>We're thrilled that you've joined the Greenlight community!</p>
+<p>We're looking forward to having you on board.</p>
+<p>For your records, your unique user ID is <strong>{{.ID}}</strong>.</p>
+<p>Best regards,</p>
+<p>The Greenlight Team</p>
+</body>
+</html>
+{{end}}
