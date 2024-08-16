@@ -6,6 +6,7 @@ import (
 	"flag"
 	"github.com/TauAdam/Greenlight/internal/data"
 	json_logger "github.com/TauAdam/Greenlight/internal/json-logger"
+	"github.com/TauAdam/Greenlight/internal/mailer"
 	_ "github.com/lib/pq"
 	"log"
 	"os"
@@ -34,6 +35,7 @@ type application struct {
 	config config
 	logger *json_logger.Logger
 	models data.Models
+	mailer mailer.Mailer
 }
 
 func main() {
