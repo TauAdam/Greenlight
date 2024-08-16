@@ -30,6 +30,7 @@ type MockModels struct {
 type Models struct {
 	Movies MovieModel
 	Users  UserModel
+	Tokens TokenModel
 }
 
 // NewModels returns a Models struct containing the initialized MovieModel.
@@ -37,5 +38,6 @@ func NewModels(db *sql.DB) Models {
 	return Models{
 		Movies: MovieModel{DB: db},
 		Users:  UserModel{db},
+		Tokens: TokenModel{db},
 	}
 }
