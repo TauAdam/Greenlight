@@ -18,11 +18,12 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.handleCreateAuthenticationToken)
 
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.handleHealthcheck)
-	router.HandlerFunc(http.MethodPost, "/v1/movies", app.handleCreateMovie)
-	router.HandlerFunc(http.MethodGet, "/v1/movies/:id", app.handleShowMovie)
-	router.HandlerFunc(http.MethodPatch, "/v1/movies/:id", app.handleUpdateMovie)
-	router.HandlerFunc(http.MethodDelete, "/v1/movies/:id", app.handleDeleteMovie)
-	router.HandlerFunc(http.MethodGet, "/v1/movies", app.handleListMovies)
+
+	router.HandlerFunc(http.MethodGet, "/v1/movies", app.requireActivatedUser(app.handleListMovies))
+	router.HandlerFunc(http.MethodPost, "/v1/movies", app.requireActivatedUser(app.handleCreateMovie))
+	router.HandlerFunc(http.MethodGet, "/v1/movies/:id", app.requireActivatedUser(app.handleShowMovie))
+	router.HandlerFunc(http.MethodPatch, "/v1/movies/:id", app.requireActivatedUser(app.handleUpdateMovie))
+	router.HandlerFunc(http.MethodDelete, "/v1/movies/:id", app.requireActivatedUser(app.handleDeleteMovie))
 
 	return app.recoverPanic(app.rateLimit(app.authenticate(router)))
 }
