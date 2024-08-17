@@ -181,7 +181,7 @@ RETURNING version`
 	return nil
 }
 
-func (m UserModel) GetForToken(activation string, plaintext string) (*User, error) {
+func (m UserModel) GetForToken(scope string, plaintext string) (*User, error) {
 	tokenHash := sha256.Sum256([]byte(plaintext))
 	query := `
 SELECT users.id, users.created_at, users.name, users.email, users.password_hash, users.activated, users.version
@@ -196,7 +196,7 @@ AND tokens.expiry > $3`
 	defer cancel()
 
 	var user User
-	args := []interface{}{tokenHash[:], activation, time.Now()}
+	args := []any{tokenHash[:], scope, time.Now()}
 	err := m.DB.QueryRowContext(ctx, query, args...).Scan(
 		&user.ID,
 		&user.CreatedAt,
