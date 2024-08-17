@@ -51,6 +51,12 @@ func (app *application) handleRegisterUser(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	err = app.models.Permissions.GrantPermission(user.ID, PermissionRead)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	token, err := app.models.Tokens.New(user.ID, 3*24*time.Hour, data.ScopeActivation)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
