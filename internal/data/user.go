@@ -21,6 +21,14 @@ type User struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+// AnonymousUser holds s a pointer to a User struct
+// representing an inactivated user with no ID, name, email, password.
+var AnonymousUser = &User{}
+
+func (u *User) IsAnonymous() bool {
+	return u == AnonymousUser
+}
+
 type password struct {
 	plaintext *string
 	hash      []byte
