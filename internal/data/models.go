@@ -28,16 +28,18 @@ type MockModels struct {
 //}
 
 type Models struct {
-	Movies MovieModel
-	Users  UserModel
-	Tokens TokenModel
+	Movies      MovieModel
+	Users       UserModel
+	Tokens      TokenModel
+	Permissions PermissionModel
 }
 
 // NewModels returns a Models struct containing the initialized MovieModel.
 func NewModels(db *sql.DB) Models {
 	return Models{
-		Movies: MovieModel{DB: db},
-		Users:  UserModel{db},
-		Tokens: TokenModel{db},
+		Movies:      MovieModel{DB: db},
+		Users:       UserModel{db},
+		Tokens:      TokenModel{db},
+		Permissions: PermissionModel{db},
 	}
 }
