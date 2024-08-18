@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"expvar"
 	"flag"
 	"github.com/TauAdam/Greenlight/internal/data"
 	json_logger "github.com/TauAdam/Greenlight/internal/json-logger"
@@ -10,6 +11,7 @@ import (
 	_ "github.com/lib/pq"
 	"log"
 	"os"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -91,6 +93,22 @@ func main() {
 	}(db)
 
 	logger.PrintInfo("database connection pool established", nil)
+
+	expvar.NewString("version").Set(version)
+
+	// Show the number of goroutines that currently exist.
+	expvar.Publish("goroutines", expvar.Func(func() interface{} {
+		return runtime.NumGoroutine()
+	}))
+
+	expvar.Publish("database", expvar.Func(func() interface{} {
+		return db.Stats()
+	}))
+
+	// Publish the current UNIX timestamp as an expvar.
+	expvar.Publish("timestamp", expvar.Func(func() interface{} {
+		return time.Now().Unix()
+	}))
 
 	app := &application{
 		config: cfg,

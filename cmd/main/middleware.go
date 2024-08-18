@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"expvar"
 	"fmt"
 	"github.com/TauAdam/Greenlight/internal/data"
 	"github.com/TauAdam/Greenlight/internal/validator"
@@ -186,6 +187,7 @@ func (app *application) requirePermission(code string, next http.HandlerFunc) ht
 func (app *application) enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Origin")
+		w.Header().Add("Vary", "Access-Control-Request-Method")
 
 		origin := r.Header.Get("Origin")
 
@@ -196,10 +198,40 @@ func (app *application) enableCORS(next http.Handler) http.Handler {
 				// If we find a match, set the Access-Control-Allow-Origin header on the response
 				if origin == app.config.cors.trustedOrigins[i] {
 					w.Header().Set("Access-Control-Allow-Origin", origin)
+
+					// If the request is for a preflight OPTIONS request, and let the browser know which HTTP methods & headers are allowed.
+					if r.Method == http.MethodOptions && r.Header.Get("Access-Control-Request-Method") != "" {
+						w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT, PATCH, DELETE")
+						w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+
+						w.WriteHeader(http.StatusNoContent)
+
+						return
+					}
 				}
 			}
 		}
 
 		next.ServeHTTP(w, r)
+	})
+}
+
+// metrics middleware to record the total number of requests received, the total number of responses sent, and the total processing time.
+func (app *application) metrics(next http.Handler) http.Handler {
+	totalRequestsReceived := expvar.NewInt("total_requests_received")
+	totalResponsesSent := expvar.NewInt("total_responses_sent")
+	totalProcessingTimeMicroseconds := expvar.NewInt("total_processing_time_μs")
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		totalRequestsReceived.Add(1)
+
+		next.ServeHTTP(w, r)
+
+		totalResponsesSent.Add(1)
+
+		duration := time.Now().Sub(start).Microseconds()
+		totalProcessingTimeMicroseconds.Add(duration)
 	})
 }
