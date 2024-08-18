@@ -31,6 +31,7 @@ A json api for managing and retrieving information about movies.
 - User Activation
     - When a user registers, they will receive an email with a link to activate their account.
 - Token based authentication
+- CORS
 
 ## Endpoints
 - GET /v1/healthcheck - Check the health of the API
