@@ -14,6 +14,14 @@ confirm:
 run/api:
 	go run ./cmd/main -db-dsn=${GREENLIGHT_DB_DSN}
 
+# build/api: Build the application binary, strip debug information, symbol table
+# to reduce binary size. Also build a linux binary.
+.PHONY: build/api
+build/api:
+	@echo 'Building cmd/api...'
+	go build -ldflags='-s' -o=./bin/main ./cmd/main
+	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./bin/linux_amd64/main ./cmd/main
+
 ## connect to the database using psql
 .PHONY: db/psql
 db/psql:
@@ -27,9 +35,15 @@ db/migrations/new:
 
 ## apply all up database migrations
 .PHONY: db/migrations/up
-	db/migrations/up: confirm
+db/migrations/up:
 	@echo 'Running up migrations...'
 	migrate -path ./migrations -database ${GREENLIGHT_DB_DSN} up
+
+# apply all down database migrations
+.PHONY: db/migrations/down
+db/migrations/down: confirm
+	@echo 'Running down migrations...'
+	migrate -path ./migrations -database ${GREENLIGHT_DB_DSN} down
 
 # audit: Tidy and verify module dependencies, format and vet code, and run tests.
 .PHONY: audit
