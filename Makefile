@@ -14,13 +14,15 @@ confirm:
 run/api:
 	go run ./cmd/main -db-dsn=${GREENLIGHT_DB_DSN}
 
+current_time = $(shell date --iso-8601=seconds)
+linker_flags = '-s -X main.buildTime=${current_time} -X main.version=$(shell git describe --tags --always --dirty --long)'
 # build/api: Build the application binary, strip debug information, symbol table
 # to reduce binary size. Also build a linux binary.
 .PHONY: build/api
 build/api:
 	@echo 'Building cmd/api...'
-	go build -ldflags='-s' -o=./bin/main ./cmd/main
-	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./bin/linux_amd64/main ./cmd/main
+	go build -ldflags=${linker_flags} -o=./bin/main ./cmd/main
+	GOOS=linux GOARCH=amd64 go build -ldflags=${linker_flags} -o=./bin/linux_amd64/main ./cmd/main
 
 ## connect to the database using psql
 .PHONY: db/psql
@@ -66,3 +68,8 @@ vendor:
 	go mod verify
 	@echo 'Vendoring dependencies...'
 	go mod vendor
+
+## prod/connect: connect to the production server
+.PHONY: prod/connect
+production/connect:
+	ssh ${username}@${production_host_ip}

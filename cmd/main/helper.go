@@ -23,7 +23,7 @@ func (app *application) extractIDParam(r *http.Request) (int64, error) {
 	return id, nil
 }
 
-type envelope map[string]interface{}
+type envelope map[string]any
 
 func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
 	js, err := json.MarshalIndent(data, "", "\t")
@@ -43,7 +43,7 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data envelo
 	return nil
 }
 
-func (app *application) readJSON(r *http.Request, dst interface{}) error {
+func (app *application) readJSON(r *http.Request, dst any) error {
 	err := json.NewDecoder(r.Body).Decode(dst)
 	if err != nil {
 		var syntaxError *json.SyntaxError

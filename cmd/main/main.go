@@ -17,7 +17,10 @@ import (
 	"time"
 )
 
-const version = "1.0.0"
+var (
+	buildTime string
+	version   string
+)
 
 type config struct {
 	port int
@@ -77,7 +80,15 @@ func main() {
 		return nil
 	})
 
+	flagVersion := flag.Bool("version", false, "Print the version and exit")
+
 	flag.Parse()
+
+	if *flagVersion {
+		log.Printf("version: \t%s\n", version)
+		log.Printf("build time: \t%s\n", buildTime)
+		return
+	}
 
 	logger := json_logger.New(os.Stdout, json_logger.LevelInfo)
 
@@ -97,16 +108,16 @@ func main() {
 	expvar.NewString("version").Set(version)
 
 	// Show the number of goroutines that currently exist.
-	expvar.Publish("goroutines", expvar.Func(func() interface{} {
+	expvar.Publish("goroutines", expvar.Func(func() any {
 		return runtime.NumGoroutine()
 	}))
 
-	expvar.Publish("database", expvar.Func(func() interface{} {
+	expvar.Publish("database", expvar.Func(func() any {
 		return db.Stats()
 	}))
 
 	// Publish the current UNIX timestamp as an expvar.
-	expvar.Publish("timestamp", expvar.Func(func() interface{} {
+	expvar.Publish("timestamp", expvar.Func(func() any {
 		return time.Now().Unix()
 	}))
 
