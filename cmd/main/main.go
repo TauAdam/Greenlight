@@ -124,7 +124,6 @@ func main() {
 }
 
 func openDB(cfg config) (*sql.DB, error) {
-	// Use sql.Open to create an empty connection pool.
 	db, err := sql.Open("postgres", cfg.db.dsn)
 	if err != nil {
 		return nil, err
@@ -133,6 +132,7 @@ func openDB(cfg config) (*sql.DB, error) {
 	// Establish a new connection to the database with a 5-second timeout deadline.
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
 	err = db.PingContext(ctx)
 	if err != nil {
 		return nil, err

@@ -30,3 +30,25 @@ db/migrations/new:
 	db/migrations/up: confirm
 	@echo 'Running up migrations...'
 	migrate -path ./migrations -database ${GREENLIGHT_DB_DSN} up
+
+# audit: Tidy and verify module dependencies, format and vet code, and run tests.
+.PHONY: audit
+audit: vendor
+	@echo 'Tidying and verifying module dependencies...'
+	go mod tidy
+	go mod verify
+	@echo 'Formatting code...'
+	go fmt ./...
+	@echo 'Vetting code...'
+	go vet ./...
+	@echo 'Running tests...'
+	go test -race -vet=off ./...
+
+# vendor: Tidy and verify module dependencies, and vendor them.
+.PHONY: vendor
+vendor:
+	@echo 'Tidying and verifying module dependencies...'
+	go mod tidy
+	go mod verify
+	@echo 'Vendoring dependencies...'
+	go mod vendor
