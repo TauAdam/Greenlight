@@ -1,6 +1,11 @@
 # Greenlight
 A json api for managing and retrieving information about movies. 
 
+## self host instructions 
+- clone repository 
+- install dependencies, use makefile 
+- run cmd/main
+
 ## Stack
 - Pure Go
 - Postgresql
