@@ -12,21 +12,6 @@ var (
 	ErrEditConflict   = errors.New("edit conflict")
 )
 
-type MockModels struct {
-	Movies interface {
-		Insert(movie *Movie) error
-		Get(id int64) (*Movie, error)
-		Update(movie *Movie) error
-		Delete(id int64) error
-	}
-}
-
-//func NewMockModels() MockModels {
-//	return MockModels{
-//		Movies: MockMovieModel{},
-//	}
-//}
-
 type Models struct {
 	Movies      MovieModel
 	Users       UserModel

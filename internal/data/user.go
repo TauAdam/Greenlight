@@ -36,7 +36,7 @@ type password struct {
 
 // Set calculates the hash of the plaintext password and stores it in the hash field.
 func (p *password) Set(plaintextPassword string) error {
-	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 12)
+	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), bcrypt.MinCost)
 	if err != nil {
 		return err
 	}

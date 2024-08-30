@@ -36,8 +36,7 @@ func ValidateMovie(v *validator.Validator, movie *Movie) {
 	v.Check(validator.Unique(movie.Genres), "genres", "must not contain duplicate values")
 }
 
-// MarshalJSON method satisfies the
-// json.Marshaller interface.
+// MarshalJSON method satisfies the json.Marshaller interface.
 func (m Movie) MarshalJSON() ([]byte, error) {
 	var runtime string
 
@@ -49,7 +48,7 @@ func (m Movie) MarshalJSON() ([]byte, error) {
 		ID      int64    `json:"id"`
 		Title   string   `json:"title"`
 		Year    int32    `json:"year,omitempty"`
-		Runtime string   `json:"runtime,omitempty"` // This is a string.
+		Runtime string   `json:"runtime,omitempty"`
 		Genres  []string `json:"genres,omitempty"`
 		Version int32    `json:"version"`
 	}{
@@ -62,7 +61,6 @@ func (m Movie) MarshalJSON() ([]byte, error) {
 		Version: m.Version,
 	}
 
-	// Encode the anonymous struct to JSON,
 	return json.Marshal(aux)
 }
 
@@ -235,5 +233,3 @@ LIMIT $3 OFFSET $4`, filters.sortColumn(), filters.sortDirection())
 
 	return movies, meta, nil
 }
-
-type MockMovieModel struct{}
