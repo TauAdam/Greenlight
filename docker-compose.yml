@@ -8,19 +8,34 @@ services:
       POSTGRES_DB: movies
     ports:
       - "5432:5432"
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app:
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: movies
+      ENV_DB_DSN: postgres://postgres:postgres@db:5432/movies?sslmode=disable
     ports:
       - "4000:4000"
     restart: always
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -6,8 +6,8 @@ COPY go.mod go.sum ./
 COPY vendor/ ./vendor/
 COPY . .
 
-RUN go build -o greenlight ./cmd/api
+RUN go build -o=./bin/main ./cmd/main
 
 EXPOSE 4000
 
-CMD ["./greenlight"]
+CMD ["./bin/main"]
