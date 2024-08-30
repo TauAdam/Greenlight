@@ -68,8 +68,3 @@ vendor:
 	go mod verify
 	@echo 'Vendoring dependencies...'
 	go mod vendor
-
-## prod/connect: connect to the production server
-.PHONY: prod/connect
-production/connect:
-	ssh ${username}@${production_host_ip}

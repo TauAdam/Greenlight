@@ -8,3 +8,19 @@ services:
       POSTGRES_DB: movies
     ports:
       - "5432:5432"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: movies
+    ports:
+      - "4000:4000"
+    restart: always
