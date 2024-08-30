@@ -1,13 +1,19 @@
-FROM golang:1.22.5-alpine
+FROM golang:1.22.5-alpine AS builder
 
 WORKDIR /app
 
 COPY go.mod go.sum ./
-COPY vendor/ ./vendor/
+#COPY vendor/ ./vendor/
+RUN go mod download
+
 COPY . .
 
-RUN go build -o=./bin/main ./cmd/main
+RUN go build -o ./bin/main ./cmd/main
 
-EXPOSE 4000
 
-CMD ["./bin/main"]
+FROM alpine AS runner
+
+COPY --from=builder /app/bin/main /
+COPY .envrc /.envrc
+
+#CMD ["/main"]

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"expvar"
 	"flag"
+	"fmt"
 	"github.com/TauAdam/Greenlight/internal/data"
 	json_logger "github.com/TauAdam/Greenlight/internal/json-logger"
 	"github.com/TauAdam/Greenlight/internal/mailer"
@@ -61,13 +61,7 @@ func main() {
 	flag.IntVar(&cfg.port, "port", 4000, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
 
-	dbDSN, present := os.LookupEnv("ENV_DB_DSN")
-	if !present {
-		log.Fatal("Database dsn environment variable is not set")
-	}
-
-	cfg.db.dsn = dbDSN
-	//flag.StringVar(&cfg.db.dsn, "db-dsn", dbDSN, "PostgreSQL DSN")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://postgres:postgres@db:5432/movies?sslmode=disable", "PostgreSQL DSN")
 
 	flag.IntVar(&cfg.db.maxOpenConnections, "db-max-open-conns", 25, "PostgreSQL max open connections")
 	flag.IntVar(&cfg.db.maxIdleConnections, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
@@ -102,7 +96,9 @@ func main() {
 
 	db, err := openDB(cfg)
 	if err != nil {
-		logger.PrintFatal(err, nil)
+		logger.PrintFatal(err, map[string]string{
+			"operation": "openDB",
+		})
 	}
 	defer func(db *sql.DB) {
 		err := db.Close()
@@ -143,19 +139,23 @@ func main() {
 }
 
 func openDB(cfg config) (*sql.DB, error) {
+
+	fmt.Println(cfg.db.dsn)
+
 	db, err := sql.Open("postgres", cfg.db.dsn)
 	if err != nil {
-		return nil, err
+		fmt.Println("failed connecting to database")
+		return nil, fmt.Errorf("failed connecting to database: %w", err)
 	}
 
 	// Establish a new connection to the database with a 5-second timeout deadline.
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	//ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	//defer cancel()
 
-	err = db.PingContext(ctx)
-	if err != nil {
-		return nil, err
-	}
+	//err = db.PingContext(ctx)
+	//if err != nil {
+	//	return nil, fmt.Errorf("failed pinging database: %w", err)
+	//}
 
 	return db, nil
 }

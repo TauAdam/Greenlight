@@ -24,11 +24,6 @@ services:
       db:
         condition: service_healthy
     environment:
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_NAME: movies
       ENV_DB_DSN: postgres://postgres:postgres@db:5432/movies?sslmode=disable
     ports:
       - "4000:4000"
