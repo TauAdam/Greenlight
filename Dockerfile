@@ -8,16 +8,11 @@ RUN go mod download
 
 COPY . .
 
-RUN apk add --no-cache postgresql-client
-
 RUN go build -o ./bin/main ./cmd/main
 
 
 FROM alpine AS runner
 
 COPY --from=builder /app/bin/main ./
-COPY --from=builder /app/wait-for-db.sh ./
 
-RUN chmod +x ./wait-for-db.sh
-
-CMD ["./wait-for-db.sh", "db", "./main"]
+CMD ["./main"]

@@ -1,12 +1,20 @@
-# Greenlight
 A json api for managing and retrieving information about movies. 
 
 ## Self-host instructions 
-- clone repository 
-- run docker-compose up -d
-- use makefile, install dependencies, run vendor script
-- run db/migrations/up to apply migrations
-- run cmd/main
+Prerequisites
+- Make sure you have docker, docker compose plugin installed on your machine
+
+
+- Download the project
+- Build and run the docker container
+   ```shell
+   docker compose up --build
+   ```
+- run ```db/migrations/up``` to apply migrations to the database
+- the api ready to use on `http://localhost:4000`
+
+![img.png](img.png)
+![img_2.png](img_2.png)
 
 ## Stack
 - Pure Go
