@@ -11,19 +11,23 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d movies" ]
       interval: 10s
-      timeout: 5s
       retries: 5
+      start_period: 30s
+      timeout: 10s
 
   app:
     build:
       context: .
       dockerfile: Dockerfile
+    command:
+      - ./wait-for-db.sh db ./main
     depends_on:
       db:
         condition: service_healthy
     environment:
+      POSTGRES_PASSWORD: postgres
       ENV_DB_DSN: postgres://postgres:postgres@db:5432/movies?sslmode=disable
     ports:
       - "4000:4000"

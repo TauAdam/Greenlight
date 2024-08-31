@@ -1,9 +1,11 @@
 # Greenlight
 A json api for managing and retrieving information about movies. 
 
-## self host instructions 
+## Self-host instructions 
 - clone repository 
-- install dependencies, use makefile 
+- run docker-compose up -d
+- use makefile, install dependencies, run vendor script
+- run db/migrations/up to apply migrations
 - run cmd/main
 
 ## Stack
@@ -44,3 +46,5 @@ A json api for managing and retrieving information about movies.
 - GET /v1/movies/:id - Get a specific movie by ID
 - PATCH /v1/movies/:id - Update a specific movie by ID
 - DELETE /v1/movies/:id - Delete a specific movie by ID
+
+![img_1.png](img_1.png)
